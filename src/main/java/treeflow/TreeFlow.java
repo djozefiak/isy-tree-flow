@@ -19,6 +19,7 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
+import javafx.scene.media.AudioClip;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 
@@ -42,6 +43,8 @@ public class TreeFlow extends Application {
     private final Stack<VirtualDirectory> returnPoints = new Stack<>();
 
     private final ListView<VirtualElement> listView = new ListView<>();
+    
+    private final AudioClip clickSound = new AudioClip(getClass().getResource("/media/click_1.wav").toExternalForm());
 
     private final EventHandler<MouseEvent> doubleClickHandler = (event) -> {
         if (!event.getButton().equals(MouseButton.PRIMARY)) {
@@ -59,6 +62,7 @@ public class TreeFlow extends Application {
             path.set(currentPath());
             listView.getSelectionModel().clearSelection();
             actions++;
+            clickSound.play();
         } else if (navigationTarget instanceof VirtualFile) {
             VirtualFile fileTarget = (VirtualFile) navigationTarget;
             if (fileTarget == VirtualElementHelper.getCurrentTarget()) {
@@ -77,6 +81,7 @@ public class TreeFlow extends Application {
         files.setAll(parent.getChildren());
         path.set(currentPath());
         actions++;
+        clickSound.play();
     };
 
     @Override
