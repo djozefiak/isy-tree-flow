@@ -1,6 +1,7 @@
 package treeflow;
 
 import java.util.Random;
+import java.util.Stack;
 import javafx.application.Application;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -35,7 +36,10 @@ public class TreeFlow extends Application {
 
     private final SimpleStringProperty target = new SimpleStringProperty("");
     private final SimpleStringProperty path = new SimpleStringProperty("");
+
+    private VirtualFile currentFile;
     private final ObservableList<VirtualFile> files = FXCollections.observableArrayList();
+    private final Stack<VirtualFile> returnPoints = new Stack<>();
 
     @Override
     public void start(Stage primaryStage) {
@@ -65,22 +69,43 @@ public class TreeFlow extends Application {
         listView.setItems(files);
         VBox.setVgrow(listView, Priority.ALWAYS);
 
-        // root contains all previously defined elements
-        VBox root = new VBox(infoHeader, pathHeader, listView);
-        Scene scene = new Scene(root, 800, 600);
+        // main contains all previously defined elements
+        VBox main = new VBox(infoHeader, pathHeader, listView);
+        Scene scene = new Scene(main, 800, 600);
         scene.getStylesheets().add(getClass().getResource("/css/TreeFlow.css").toExternalForm());
 
-        // populate file tree
-        files.setAll(VirtualFile.generateRoot().getChildren());
+        // generate file tree
+        VirtualFile root = VirtualFile.generateRoot();
+        files.setAll(root.getChildren());
+        currentFile = root;
 
         // add event handler for double click on a list element
         listView.addEventHandler(MouseEvent.MOUSE_CLICKED, (event) -> {
-            if (event.getButton().equals(MouseButton.PRIMARY)) {
-                if (event.getClickCount() == 2) {
-                    System.out.println(listView.getSelectionModel().getSelectedItem());
-                    listView.getSelectionModel().clearSelection();
-                }
+            if (!event.getButton().equals(MouseButton.PRIMARY)) {
+                return;
             }
+            if (event.getClickCount() != 2) {
+                return;
+            }
+            VirtualFile navigationTarget = listView.getSelectionModel().getSelectedItem();
+            if (navigationTarget.isDirectory()) {
+                files.setAll(navigationTarget.getChildren());
+                returnPoints.push(currentFile);
+                currentFile = navigationTarget;
+                listView.getSelectionModel().clearSelection();
+            } else {
+                System.out.println("Reached file: " + navigationTarget);
+            }
+        });
+
+        // add event handler for double click on a list element
+        moveUp.setOnAction((event) -> {
+            if (returnPoints.empty()) {
+                return;
+            }
+            VirtualFile parent = returnPoints.pop();
+            currentFile = parent;
+            files.setAll(parent.getChildren());
         });
 
         primaryStage.setResizable(false);
