@@ -9,6 +9,8 @@ import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
@@ -32,37 +34,65 @@ public class TreeFlow extends Application {
     private long endTime = 0;
     private int actions = 0;
 
-    private final SimpleStringProperty target = new SimpleStringProperty("");
     private final SimpleStringProperty path = new SimpleStringProperty("");
+    private final SimpleStringProperty target = new SimpleStringProperty("");
 
     private VirtualFile currentFile;
     private final ObservableList<VirtualFile> files = FXCollections.observableArrayList();
     private final Stack<VirtualFile> returnPoints = new Stack<>();
 
+    private final ListView<VirtualFile> listView = new ListView<>();
+
+    private final EventHandler<MouseEvent> doubleClickHandler = (event) -> {
+        if (!event.getButton().equals(MouseButton.PRIMARY)) {
+            return;
+        }
+        if (event.getClickCount() != 2) {
+            return;
+        }
+        VirtualFile navigationTarget = listView.getSelectionModel().getSelectedItem();
+        if (navigationTarget.isDirectory()) {
+            files.setAll(navigationTarget.getChildren());
+            returnPoints.push(currentFile);
+            currentFile = navigationTarget;
+            listView.getSelectionModel().clearSelection();
+        } else {
+            System.out.println("Reached file: " + navigationTarget);
+        }
+    };
+
+    private final EventHandler<ActionEvent> moveUpHandler = (event) -> {
+        if (returnPoints.empty()) {
+            return;
+        }
+        VirtualFile parent = returnPoints.pop();
+        currentFile = parent;
+        files.setAll(parent.getChildren());
+    };
+
     @Override
     public void start(Stage primaryStage) {
         // header with participant id, trial number and current method
-        Label l_participantId = new Label("Participant: " + participantId);
-        Label l_trial = new Label();
-        l_trial.textProperty().bind(Bindings.concat("Trial: ").concat(trial));
-        Label l_treeFlow = new Label();
-        l_treeFlow.textProperty().bind(Bindings.concat("Method: ")
+        Label participantIdLabel = new Label("Participant: " + participantId);
+        Label trialLabel = new Label();
+        trialLabel.textProperty().bind(Bindings.concat("Trial: ").concat(trial));
+        Label treeFlowLabel = new Label();
+        treeFlowLabel.textProperty().bind(Bindings.concat("Method: ")
                 .concat(Bindings.when(treeFlow).then("TreeFlow").otherwise("DoubleClick")));
 
-        HBox infoHeader = new HBox(l_participantId, l_trial, l_treeFlow);
+        HBox infoHeader = new HBox(participantIdLabel, trialLabel, treeFlowLabel);
 
         // button for moving up a level, current path display and search target
         Button moveUp = new Button("\u2191");
         moveUp.setFocusTraversable(false);
-        Label l_path = new Label();
-        l_path.textProperty().bind(Bindings.concat("Path: ").concat(path));
-        Label l_target = new Label();
-        l_target.textProperty().bind(Bindings.concat("Target: ").concat(target));
+        Label pathLabel = new Label();
+        pathLabel.textProperty().bind(Bindings.concat("Path: ").concat(path));
+        Label targetLabel = new Label();
+        targetLabel.textProperty().bind(Bindings.concat("Target: ").concat(target));
 
-        HBox pathHeader = new HBox(moveUp, l_path, l_target);
+        HBox pathHeader = new HBox(moveUp, pathLabel, targetLabel);
 
         // shows files and directories in the current path
-        ListView<VirtualFile> listView = new ListView<>();
         listView.setFocusTraversable(false);
         listView.setItems(files);
         VBox.setVgrow(listView, Priority.ALWAYS);
@@ -78,33 +108,10 @@ public class TreeFlow extends Application {
         currentFile = root;
 
         // add event handler for double click on a list element
-        listView.addEventHandler(MouseEvent.MOUSE_CLICKED, (event) -> {
-            if (!event.getButton().equals(MouseButton.PRIMARY)) {
-                return;
-            }
-            if (event.getClickCount() != 2) {
-                return;
-            }
-            VirtualFile navigationTarget = listView.getSelectionModel().getSelectedItem();
-            if (navigationTarget.isDirectory()) {
-                files.setAll(navigationTarget.getChildren());
-                returnPoints.push(currentFile);
-                currentFile = navigationTarget;
-                listView.getSelectionModel().clearSelection();
-            } else {
-                System.out.println("Reached file: " + navigationTarget);
-            }
-        });
+        listView.setOnMouseClicked(doubleClickHandler);
 
-        // add event handler for double click on a list element
-        moveUp.setOnAction((event) -> {
-            if (returnPoints.empty()) {
-                return;
-            }
-            VirtualFile parent = returnPoints.pop();
-            currentFile = parent;
-            files.setAll(parent.getChildren());
-        });
+        // add event handler for moving up a level
+        moveUp.setOnAction(moveUpHandler);
 
         primaryStage.setResizable(false);
         primaryStage.setTitle("TreeFlow");
