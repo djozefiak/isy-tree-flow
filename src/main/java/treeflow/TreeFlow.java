@@ -43,8 +43,10 @@ public class TreeFlow extends Application {
     private final Stack<VirtualDirectory> returnPoints = new Stack<>();
 
     private final ListView<VirtualElement> listView = new ListView<>();
-    
+
     private final AudioClip clickSound = new AudioClip(getClass().getResource("/media/click_1.wav").toExternalForm());
+    private final AudioClip successSound = new AudioClip(getClass().getResource("/media/success.wav").toExternalForm());
+    private final AudioClip failureSound = new AudioClip(getClass().getResource("/media/failure.wav").toExternalForm());
 
     private final EventHandler<MouseEvent> doubleClickHandler = (event) -> {
         if (!event.getButton().equals(MouseButton.PRIMARY)) {
@@ -67,7 +69,10 @@ public class TreeFlow extends Application {
             VirtualFile fileTarget = (VirtualFile) navigationTarget;
             if (fileTarget == VirtualElementHelper.getCurrentTarget()) {
                 actions++;
+                successSound.play();
                 endTrial();
+            } else {
+                failureSound.play();
             }
         }
     };
