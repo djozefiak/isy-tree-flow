@@ -2,6 +2,8 @@ package treeflow;
 
 import java.util.Random;
 import java.util.Stack;
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
 import javafx.application.Application;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -9,6 +11,7 @@ import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.css.PseudoClass;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.control.Button;
@@ -22,6 +25,7 @@ import javafx.scene.layout.VBox;
 import javafx.scene.media.AudioClip;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
+import javafx.util.Duration;
 
 public class TreeFlow extends Application {
 
@@ -47,6 +51,7 @@ public class TreeFlow extends Application {
     private final AudioClip clickSound = new AudioClip(getClass().getResource("/media/click_1.wav").toExternalForm());
     private final AudioClip successSound = new AudioClip(getClass().getResource("/media/success.wav").toExternalForm());
     private final AudioClip failureSound = new AudioClip(getClass().getResource("/media/failure.wav").toExternalForm());
+    private Timeline flasher = null;
 
     private final EventHandler<MouseEvent> doubleClickHandler = (event) -> {
         if (!event.getButton().equals(MouseButton.PRIMARY)) {
@@ -72,6 +77,7 @@ public class TreeFlow extends Application {
                 successSound.play();
                 endTrial();
             } else {
+                flasher.play();
                 failureSound.play();
             }
         }
@@ -108,6 +114,18 @@ public class TreeFlow extends Application {
         pathLabel.textProperty().bind(Bindings.concat("Path: ").concat(path));
         Label targetLabel = new Label();
         targetLabel.textProperty().bind(Bindings.concat("Target: ").concat(target));
+
+        PseudoClass flash = PseudoClass.getPseudoClass("flash");
+
+        flasher = new Timeline(
+                new KeyFrame(Duration.millis(100), e -> {
+                    targetLabel.pseudoClassStateChanged(flash, true);
+                }),
+                new KeyFrame(Duration.millis(200), e -> {
+                    targetLabel.pseudoClassStateChanged(flash, false);
+                })
+        );
+        flasher.setCycleCount(4);
 
         HBox pathHeader = new HBox(moveUp, pathLabel, targetLabel);
 

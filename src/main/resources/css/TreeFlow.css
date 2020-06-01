@@ -18,6 +18,10 @@ Label {
     -fx-border-insets: 5;
 }
 
+Label:flash {
+    -fx-text-fill: red;
+}
+
 Button {
 
 }
