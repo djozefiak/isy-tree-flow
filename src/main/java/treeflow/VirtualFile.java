@@ -1,10 +1,59 @@
 package treeflow;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 
-class VirtualFileHelper {
+class VirtualElement {
+
+    protected final String name;
+
+    public VirtualElement(String name) {
+        this.name = name;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    @Override
+    public String toString() {
+        return "E " + name;
+    }
+}
+
+class VirtualFile extends VirtualElement {
+
+    public VirtualFile(String name) {
+        super(name);
+    }
+
+    @Override
+    public String toString() {
+        return "F " + name;
+    }
+}
+
+class VirtualDirectory extends VirtualElement {
+
+    private final List<VirtualElement> children = new ArrayList<>();
+
+    public VirtualDirectory(String name) {
+        super(name);
+    }
+
+    public List<VirtualElement> getChildren() {
+        return children;
+    }
+
+    @Override
+    public String toString() {
+        return "D " + name;
+    }
+}
+
+class VirtualElementHelper {
 
     private static final Random rng = new Random();
 
@@ -22,70 +71,69 @@ class VirtualFileHelper {
         "Studium", "Arbeit", "Programme"
     };
 
-    public static String getRandomFileName() {
-        return FILE_NAMES[rng.nextInt(FILE_NAMES.length)];
-    }
+    private static final List<VirtualFile> files = new ArrayList<>();
 
-    public static String getRandomDirectoryName() {
-        return DIRECTORY_NAMES[rng.nextInt(DIRECTORY_NAMES.length)];
-    }
-}
+    private static final List<VirtualDirectory> directories = new ArrayList<>();
 
-class VirtualFile {
+    private static VirtualFile currentTarget;
 
-    private final String name;
-    private final boolean isDirectory;
-    private final List<VirtualFile> children = new ArrayList<>();
-
-    public VirtualFile(String name, boolean isDirectory) {
-        this.name = name;
-        this.isDirectory = isDirectory;
-    }
-
-    public VirtualFile() {
-        this.name = VirtualFileHelper.getRandomFileName();
-        this.isDirectory = false;
-    }
-
-    private VirtualFile(int depth) {
-        this.name = VirtualFileHelper.getRandomDirectoryName();
-        this.isDirectory = true;
-        if (depth <= 0) {
-            children.add(new VirtualFile());
-            children.add(new VirtualFile());
-            children.add(new VirtualFile());
-            children.add(new VirtualFile());
-        } else {
-            children.add(new VirtualFile(depth - 1));
-            children.add(new VirtualFile(depth - 1));
-            children.add(new VirtualFile(depth - 1));
-            children.add(new VirtualFile(depth - 1));
+    public static void reset() {
+        files.clear();
+        for (String name : FILE_NAMES) {
+            files.add(new VirtualFile(name));
         }
+        directories.clear();
+        for (String name : DIRECTORY_NAMES) {
+            directories.add(new VirtualDirectory(name));
+        }
+        Collections.shuffle(files, rng);
+        Collections.shuffle(directories, rng);
+        currentTarget = files.get(rng.nextInt(files.size()));
     }
 
-    public String getName() {
-        return name;
+    private static VirtualFile getRandomFile() {
+        if (files.isEmpty()) {
+            System.err.println("Error: File Generator Exhausted");
+            return null;
+        }
+        return files.remove(rng.nextInt(files.size()));
     }
 
-    public boolean isDirectory() {
-        return isDirectory;
+    private static VirtualDirectory getRandomDirectory() {
+        if (directories.isEmpty()) {
+            System.err.println("Error: Directory Generator Exhausted");
+            return null;
+        }
+        return directories.remove(rng.nextInt(directories.size()));
     }
 
-    public List<VirtualFile> getChildren() {
-        return children;
+    private static VirtualDirectory generateDirectories(int depth) {
+        VirtualDirectory dir = getRandomDirectory();
+        if (depth > 0) {
+            dir.getChildren().add(generateDirectories(depth - 1));
+            dir.getChildren().add(generateDirectories(depth - 1));
+            dir.getChildren().add(getRandomFile());
+            dir.getChildren().add(getRandomFile());
+        } else {
+            dir.getChildren().add(getRandomFile());
+            dir.getChildren().add(getRandomFile());
+            dir.getChildren().add(getRandomFile());
+            dir.getChildren().add(getRandomFile());
+        }
+        return dir;
     }
 
-    @Override
-    public String toString() {
-        return (isDirectory ? "D" : "F") + " " + name;
+    public static VirtualFile getCurrentTarget() {
+        return currentTarget;
     }
 
-    public static VirtualFile generateRoot() {
-        VirtualFile root = new VirtualFile("ROOT", true);
-        root.getChildren().add(new VirtualFile());
-        root.getChildren().add(new VirtualFile());
-        root.getChildren().add(new VirtualFile(1));
-        root.getChildren().add(new VirtualFile(1));
+    public static VirtualDirectory generateTree() {
+        reset();
+        VirtualDirectory root = new VirtualDirectory("");
+        root.getChildren().add(getRandomFile());
+        root.getChildren().add(getRandomFile());
+        root.getChildren().add(generateDirectories(1));
+        root.getChildren().add(generateDirectories(1));
         return root;
     }
 }

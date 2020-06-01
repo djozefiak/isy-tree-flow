@@ -37,11 +37,11 @@ public class TreeFlow extends Application {
     private final SimpleStringProperty path = new SimpleStringProperty("");
     private final SimpleStringProperty target = new SimpleStringProperty("");
 
-    private VirtualFile currentFile;
-    private final ObservableList<VirtualFile> files = FXCollections.observableArrayList();
-    private final Stack<VirtualFile> returnPoints = new Stack<>();
+    private VirtualDirectory currentDirectory;
+    private final ObservableList<VirtualElement> files = FXCollections.observableArrayList();
+    private final Stack<VirtualDirectory> returnPoints = new Stack<>();
 
-    private final ListView<VirtualFile> listView = new ListView<>();
+    private final ListView<VirtualElement> listView = new ListView<>();
 
     private final EventHandler<MouseEvent> doubleClickHandler = (event) -> {
         if (!event.getButton().equals(MouseButton.PRIMARY)) {
@@ -50,14 +50,21 @@ public class TreeFlow extends Application {
         if (event.getClickCount() != 2) {
             return;
         }
-        VirtualFile navigationTarget = listView.getSelectionModel().getSelectedItem();
-        if (navigationTarget.isDirectory()) {
-            files.setAll(navigationTarget.getChildren());
-            returnPoints.push(currentFile);
-            currentFile = navigationTarget;
+        VirtualElement navigationTarget = listView.getSelectionModel().getSelectedItem();
+        if (navigationTarget instanceof VirtualDirectory) {
+            VirtualDirectory directoryTarget = (VirtualDirectory) navigationTarget;
+            returnPoints.push(currentDirectory);
+            currentDirectory = directoryTarget;
+            files.setAll(directoryTarget.getChildren());
+            path.set(currentPath());
             listView.getSelectionModel().clearSelection();
-        } else {
-            System.out.println("Reached file: " + navigationTarget);
+            actions++;
+        } else if (navigationTarget instanceof VirtualFile) {
+            VirtualFile fileTarget = (VirtualFile) navigationTarget;
+            if (fileTarget == VirtualElementHelper.getCurrentTarget()) {
+                actions++;
+                endTrial();
+            }
         }
     };
 
@@ -65,9 +72,11 @@ public class TreeFlow extends Application {
         if (returnPoints.empty()) {
             return;
         }
-        VirtualFile parent = returnPoints.pop();
-        currentFile = parent;
+        VirtualDirectory parent = returnPoints.pop();
+        currentDirectory = parent;
         files.setAll(parent.getChildren());
+        path.set(currentPath());
+        actions++;
     };
 
     @Override
@@ -102,11 +111,6 @@ public class TreeFlow extends Application {
         Scene scene = new Scene(main, 800, 600);
         scene.getStylesheets().add(getClass().getResource("/css/TreeFlow.css").toExternalForm());
 
-        // generate file tree
-        VirtualFile root = VirtualFile.generateRoot();
-        files.setAll(root.getChildren());
-        currentFile = root;
-
         // add event handler for double click on a list element
         listView.setOnMouseClicked(doubleClickHandler);
 
@@ -118,18 +122,26 @@ public class TreeFlow extends Application {
         primaryStage.setScene(scene);
         primaryStage.show();
         // Dialogs.showStartDialog();
-        // startTrial();
+        startTrial();
     }
 
-    public void startTrial() {
+    private void startTrial() {
         trial.set(trial.get() + 1);
         treeFlow.set(!treeFlow.get());
         startTime = System.currentTimeMillis();
         endTime = 0;
         actions = 0;
+
+        // generate file tree
+        VirtualDirectory root = VirtualElementHelper.generateTree();
+        currentDirectory = root;
+        returnPoints.clear();
+        files.setAll(root.getChildren());
+        target.set(VirtualElementHelper.getCurrentTarget().getName());
+        path.set(currentPath());
     }
 
-    public void endTrial() {
+    private void endTrial() {
         endTime = System.currentTimeMillis();
         long time = endTime - startTime;
 
@@ -142,6 +154,17 @@ public class TreeFlow extends Application {
         } else {
             startTrial();
         }
+    }
+
+    private String currentPath() {
+        StringBuilder sb = new StringBuilder();
+        for (VirtualDirectory dir : returnPoints) {
+            sb.append(dir.getName());
+            sb.append("/");
+        }
+        sb.append(currentDirectory.getName());
+        sb.append("/");
+        return sb.toString();
     }
 
     public static void main(String[] args) {
