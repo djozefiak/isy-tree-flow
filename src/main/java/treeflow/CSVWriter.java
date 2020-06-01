@@ -23,11 +23,11 @@ public class CSVWriter {
         }
     }
 
-    public void write(String participant, int trial, int method, long time, int actions) {
+    public void write(String participant, int trial, boolean treeFlow, long time, int actions) {
         try {
             writer.append(participant + SEPERATOR
                     + trial + SEPERATOR
-                    + method + SEPERATOR
+                    + (treeFlow ? "TF" : "DC") + SEPERATOR
                     + time + SEPERATOR
                     + actions + "\n");
         } catch (IOException ex) {

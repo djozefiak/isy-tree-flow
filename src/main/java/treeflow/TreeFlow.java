@@ -126,7 +126,7 @@ public class TreeFlow extends Application {
         endTime = System.currentTimeMillis();
         long time = endTime - startTime;
 
-        writer.write(participantId, trial.get(), treeFlow.get() ? 1 : 0, time, actions);
+        writer.write(participantId, trial.get(), treeFlow.get(), time, actions);
 
         if (trial.get() >= 20) {
             writer.close();
