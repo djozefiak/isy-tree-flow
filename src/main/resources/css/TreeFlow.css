@@ -1,0 +1,27 @@
+.root {
+    -fx-font-size: 14pt;
+    -fx-font-family: monospaced;
+}
+
+HBox {
+    -fx-alignment: baseline-left;
+}
+
+VBox {
+    -fx-spacing: 2;
+}
+
+Label {
+    -fx-padding: 10;
+    -fx-border-color: grey;
+    -fx-border-radius: 2;
+    -fx-border-insets: 5;
+}
+
+Button {
+
+}
+
+ListView {
+
+}
