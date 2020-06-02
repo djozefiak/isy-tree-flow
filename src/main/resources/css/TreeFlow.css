@@ -18,7 +18,14 @@ Label {
     -fx-border-insets: 5;
 }
 
-Label:flash {
+BlinkingLabel {
+    -fx-padding: 10;
+    -fx-border-color: grey;
+    -fx-border-radius: 2;
+    -fx-border-insets: 5;
+}
+
+BlinkingLabel:blink {
     -fx-text-fill: red;
 }
 
