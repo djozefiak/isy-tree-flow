@@ -1,28 +1,22 @@
 .root {
     -fx-font-size: 14pt;
     -fx-font-family: monospaced;
+    -fx-padding: 10;
 }
 
 HBox {
     -fx-alignment: baseline-left;
+    -fx-spacing: 6;
 }
 
 VBox {
-    -fx-spacing: 2;
+    -fx-spacing: 6;
 }
 
-Label {
-    -fx-padding: 10;
+Label, BlinkingLabel {
+    -fx-padding: 6 10 6 10;
     -fx-border-color: grey;
     -fx-border-radius: 2;
-    -fx-border-insets: 5;
-}
-
-BlinkingLabel {
-    -fx-padding: 10;
-    -fx-border-color: grey;
-    -fx-border-radius: 2;
-    -fx-border-insets: 5;
 }
 
 BlinkingLabel:blink {
