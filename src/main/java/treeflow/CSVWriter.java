@@ -17,7 +17,6 @@ public class CSVWriter {
             File file = new File(FILENAME);
             writer = new FileWriter(file);
             writer.write(String.join(SEPERATOR, HEADER) + "\n");
-            writer.flush();
         } catch (IOException ex) {
             System.err.println("Error: Could Not Write CSV Header");
         }
