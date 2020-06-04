@@ -24,6 +24,7 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.scene.media.AudioClip;
 import javafx.scene.Scene;
+import javafx.scene.image.ImageView;
 import javafx.stage.Stage;
 
 public class TreeFlow extends Application {
@@ -77,9 +78,9 @@ public class TreeFlow extends Application {
     private final EventHandler<MouseEvent> actionFlowHandler = (event) -> {
         Point2D currentPoint = new Point2D(event.getSceneX(), event.getSceneY());
         double offset = flowPoint.getX() - currentPoint.getX();
-        if (offset < -50) {
+        if (offset < -30) {
             listView.setCursor(Cursors.RIGHT);
-        } else if (offset > 50) {
+        } else if (offset > 30) {
             listView.setCursor(Cursors.LEFT);
         }
         if (offset < -100) {
@@ -214,11 +215,17 @@ public class TreeFlow extends Application {
                     super.updateItem(element, empty);
                     if (empty) {
                         setText(null);
+                        setGraphic(null);
                     } else {
-                        setText(element.toString());
+                        setText(element.getName());
+                        ImageView img = element.getImage();
+                        img.setFitHeight(30);
+                        img.setPreserveRatio(true);
+                        setGraphic(img);
                     }
                 }
             };
+
             cell.hoverProperty().addListener((observable, wasHovered, isHovered) -> {
                 if (isHovered && !cell.isEmpty()) {
                     listView.getSelectionModel().select(cell.getItem());

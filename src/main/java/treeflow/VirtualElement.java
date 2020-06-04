@@ -1,25 +1,34 @@
 package treeflow;
 
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Random;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 
-class VirtualElement {
+abstract class VirtualElement {
 
     protected final String name;
+    protected final ImageView image;
 
     public VirtualElement(String name) {
         this.name = name;
+        this.image = new ImageView();
     }
 
     public String getName() {
         return name;
     }
 
+    public ImageView getImage() {
+        return image;
+    }
+
     @Override
     public String toString() {
-        return "E " + name;
+        return "<E> " + name;
     }
 }
 
@@ -27,11 +36,18 @@ class VirtualFile extends VirtualElement {
 
     public VirtualFile(String name) {
         super(name);
+        String extension = name.substring(name.lastIndexOf('.') + 1);
+        URL resource = getClass().getResource("/icons/" + extension + ".png");
+        if (resource != null) {
+            image.setImage(new Image(resource.toExternalForm()));
+        } else {
+            image.setImage(new Image(getClass().getResource("/icons/txt.png").toExternalForm()));
+        }
     }
 
     @Override
     public String toString() {
-        return "F " + name;
+        return "<F> " + name;
     }
 }
 
@@ -41,6 +57,7 @@ class VirtualDirectory extends VirtualElement {
 
     public VirtualDirectory(String name) {
         super(name);
+        image.setImage(new Image(getClass().getResource("/icons/directory.png").toExternalForm()));
     }
 
     public List<VirtualElement> getChildren() {
@@ -49,7 +66,7 @@ class VirtualDirectory extends VirtualElement {
 
     @Override
     public String toString() {
-        return "D " + name;
+        return "<D> " + name;
     }
 }
 
@@ -130,10 +147,10 @@ class VirtualElementHelper {
     public static VirtualDirectory generateTree() {
         reset();
         VirtualDirectory root = new VirtualDirectory("");
-        root.getChildren().add(getRandomFile());
-        root.getChildren().add(getRandomFile());
         root.getChildren().add(generateDirectories(1));
         root.getChildren().add(generateDirectories(1));
+        root.getChildren().add(getRandomFile());
+        root.getChildren().add(getRandomFile());
         return root;
     }
 }
