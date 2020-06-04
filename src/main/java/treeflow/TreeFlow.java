@@ -47,9 +47,9 @@ public class TreeFlow extends Application {
 
     private final ListView<VirtualElement> listView = new ListView<>();
 
-    private final AudioClip clickSound = new AudioClip(getClass().getResource("/media/click_1.wav").toExternalForm());
-    private final AudioClip successSound = new AudioClip(getClass().getResource("/media/success.wav").toExternalForm());
-    private final AudioClip failureSound = new AudioClip(getClass().getResource("/media/failure.wav").toExternalForm());
+    private final AudioClip clickSound = new AudioClip(getClass().getResource("/sounds/click_1.wav").toExternalForm());
+    private final AudioClip successSound = new AudioClip(getClass().getResource("/sounds/success.wav").toExternalForm());
+    private final AudioClip failureSound = new AudioClip(getClass().getResource("/sounds/failure.wav").toExternalForm());
 
     private final BlinkingLabel targetLabel = new BlinkingLabel();
 
@@ -234,7 +234,7 @@ public class TreeFlow extends Application {
         // main contains all previously defined elements
         VBox main = new VBox(infoHeader, pathHeader, listView);
         Scene scene = new Scene(main, 800, 600);
-        scene.getStylesheets().add(getClass().getResource("/css/TreeFlow.css").toExternalForm());
+        scene.getStylesheets().add(getClass().getResource("/stylesheets/TreeFlow.css").toExternalForm());
 
         // add event handler for double click on a list element
         listView.setOnMouseClicked(doubleClickHandler);
