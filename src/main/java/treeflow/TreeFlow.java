@@ -54,6 +54,7 @@ public class TreeFlow extends Application {
     private final BlinkingLabel targetLabel = new BlinkingLabel();
 
     private Point2D flowPoint = new Point2D(0, 0);
+    private boolean flowAllowed = true;
 
     private final EventHandler<MouseEvent> doubleClickHandler = (event) -> {
         if (!event.getButton().equals(MouseButton.PRIMARY)) {
@@ -63,6 +64,9 @@ public class TreeFlow extends Application {
             return;
         }
         VirtualElement navigationTarget = listView.getSelectionModel().getSelectedItem();
+        if (treeFlow.get() && navigationTarget instanceof VirtualDirectory) {
+            return;
+        }
         openElement(navigationTarget);
     };
 
@@ -71,31 +75,58 @@ public class TreeFlow extends Application {
     };
 
     private final EventHandler<MouseEvent> prepareFlowHandler = (event) -> {
+        if (!treeFlow.get() || !flowAllowed) {
+            return;
+        }
         flowPoint = new Point2D(event.getSceneX(), event.getSceneY());
     };
 
     private final EventHandler<MouseEvent> actionFlowHandler = (event) -> {
+        if (!treeFlow.get() || !flowAllowed) {
+            return;
+        }
+
         Point2D currentPoint = new Point2D(event.getSceneX(), event.getSceneY());
         double offset = flowPoint.getX() - currentPoint.getX();
+        VirtualElement navigationTarget = listView.getSelectionModel().getSelectedItem();
+
+        if (offset >= -30 && offset <= 30) {
+            listView.setCursor(Cursor.DEFAULT);
+        }
+
         if (offset < -30) {
+            if (navigationTarget instanceof VirtualFile) {
+                listView.setCursor(Cursor.DEFAULT);
+                return;
+            }
             listView.setCursor(Cursors.RIGHT);
         } else if (offset > 30) {
+            if (returnPoints.empty()) {
+                listView.setCursor(Cursor.DEFAULT);
+                return;
+            }
             listView.setCursor(Cursors.LEFT);
         }
+
         if (offset < -100) {
-            VirtualElement navigationTarget = listView.getSelectionModel().getSelectedItem();
+            int nextFlow = listView.getSelectionModel().getSelectedIndex();
             openElement(navigationTarget);
-            flowPoint = currentPoint;
             listView.setCursor(Cursor.DEFAULT);
+            listView.getSelectionModel().select(nextFlow);
+            flowAllowed = false;
         } else if (offset > 100) {
             moveToParent();
-            flowPoint = currentPoint;
             listView.setCursor(Cursor.DEFAULT);
+            flowAllowed = false;
         }
     };
 
     private final EventHandler<MouseEvent> endFlowHandler = (event) -> {
+        if (!treeFlow.get()) {
+            return;
+        }
         listView.setCursor(Cursor.DEFAULT);
+        flowAllowed = true;
     };
 
     private void openElement(VirtualElement element) {
@@ -124,7 +155,7 @@ public class TreeFlow extends Application {
         currentDirectory = directory;
         files.setAll(directory.getChildren());
         path.set(currentPath());
-        listView.getSelectionModel().clearSelection();
+        //listView.getSelectionModel().clearSelection();
         actions++;
         clickSound.play();
     }
