@@ -16,6 +16,8 @@ abstract class VirtualElement {
     public VirtualElement(String name) {
         this.name = name;
         this.image = new ImageView();
+        this.image.setPreserveRatio(true);
+        this.image.setSmooth(false);
     }
 
     public String getName() {
@@ -41,7 +43,7 @@ class VirtualFile extends VirtualElement {
         if (resource != null) {
             image.setImage(new Image(resource.toExternalForm()));
         } else {
-            image.setImage(new Image(getClass().getResource("/icons/txt.png").toExternalForm()));
+            image.setImage(new Image(getClass().getResource("/icons/default.png").toExternalForm()));
         }
     }
 
@@ -57,7 +59,7 @@ class VirtualDirectory extends VirtualElement {
 
     public VirtualDirectory(String name) {
         super(name);
-        image.setImage(new Image(getClass().getResource("/icons/directory.png").toExternalForm()));
+        image.setImage(new Image(getClass().getResource("/icons/directory_closed.png").toExternalForm()));
     }
 
     public List<VirtualElement> getChildren() {
@@ -75,7 +77,7 @@ class VirtualElementHelper {
     private static final Random rng = new Random();
 
     private static final String[] FILE_NAMES = {
-        "Rechnung.docx", "Seminararbeit.docx", "Ausarbeitung.docx", "Bachelorarbeit.docx",
+        "Rechnung.doc", "Seminararbeit.doc", "Ausarbeitung.doc", "Bachelorarbeit.doc",
         "Rechnung.txt", "Bestellung.txt", "Notizen.txt", "Passwörter.txt",
         "Rechnung.pdf", "Seminararbeit.pdf", "Ausarbeitung.pdf", "Masterarbeit.pdf",
         "Strand.png", "Urlaub.png", "Katze.png", "Hund.png",

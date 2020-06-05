@@ -24,7 +24,6 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.scene.media.AudioClip;
 import javafx.scene.Scene;
-import javafx.scene.image.ImageView;
 import javafx.stage.Stage;
 
 public class TreeFlow extends Application {
@@ -218,10 +217,7 @@ public class TreeFlow extends Application {
                         setGraphic(null);
                     } else {
                         setText(element.getName());
-                        ImageView img = element.getImage();
-                        img.setFitHeight(30);
-                        img.setPreserveRatio(true);
-                        setGraphic(img);
+                        setGraphic(element.getImage());
                     }
                 }
             };
