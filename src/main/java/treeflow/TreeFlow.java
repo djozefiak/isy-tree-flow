@@ -1,3 +1,4 @@
+// Interaktive Systeme, Sommersemester 2020, David Jozefiak, TreeFlowStudy
 package treeflow;
 
 import java.util.Random;
@@ -67,7 +68,9 @@ public class TreeFlow extends Application {
         if (treeFlow.get() && navigationTarget instanceof VirtualDirectory) {
             return;
         }
+        int nextItem = listView.getSelectionModel().getSelectedIndex();
         openElement(navigationTarget);
+        listView.getSelectionModel().select(nextItem);
     };
 
     private final EventHandler<ActionEvent> moveUpHandler = (event) -> {
@@ -115,8 +118,10 @@ public class TreeFlow extends Application {
             listView.getSelectionModel().select(nextFlow);
             flowAllowed = false;
         } else if (offset > 100) {
+            int nextFlow = listView.getSelectionModel().getSelectedIndex();
             moveToParent();
             listView.setCursor(Cursor.DEFAULT);
+            listView.getSelectionModel().select(nextFlow);
             flowAllowed = false;
         }
     };
@@ -256,6 +261,9 @@ public class TreeFlow extends Application {
             };
 
             cell.hoverProperty().addListener((observable, wasHovered, isHovered) -> {
+                if (wasHovered && !cell.isEmpty()) {
+                    listView.getSelectionModel().clearSelection();
+                }
                 if (isHovered && !cell.isEmpty()) {
                     listView.getSelectionModel().select(cell.getItem());
                 }
