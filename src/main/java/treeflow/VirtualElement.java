@@ -59,7 +59,7 @@ class VirtualDirectory extends VirtualElement {
 
     public VirtualDirectory(String name) {
         super(name);
-        image.setImage(new Image(getClass().getResource("/icons/directory_closed.png").toExternalForm()));
+        image.setImage(new Image(getClass().getResource("/icons/directory.png").toExternalForm()));
     }
 
     public List<VirtualElement> getChildren() {

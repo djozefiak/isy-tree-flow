@@ -33,7 +33,7 @@ public class TreeFlow extends Application {
 
     private final String participantId = String.format("%08x", rng.nextInt());
     private final SimpleIntegerProperty trial = new SimpleIntegerProperty(0);
-    private final SimpleBooleanProperty treeFlow = new SimpleBooleanProperty(false); // rng.nextBoolean()
+    private final SimpleBooleanProperty treeFlow = new SimpleBooleanProperty(rng.nextBoolean());
     private long startTime = 0;
     private long endTime = 0;
     private int actions = 0;
@@ -47,7 +47,7 @@ public class TreeFlow extends Application {
 
     private final ListView<VirtualElement> listView = new ListView<>();
 
-    private final AudioClip clickSound = new AudioClip(getClass().getResource("/sounds/click_1.wav").toExternalForm());
+    private final AudioClip clickSound = new AudioClip(getClass().getResource("/sounds/click.wav").toExternalForm());
     private final AudioClip successSound = new AudioClip(getClass().getResource("/sounds/success.wav").toExternalForm());
     private final AudioClip failureSound = new AudioClip(getClass().getResource("/sounds/failure.wav").toExternalForm());
 
@@ -140,8 +140,8 @@ public class TreeFlow extends Application {
     }
 
     private void openFile(VirtualFile file) {
+        actions++;
         if (file == VirtualElementHelper.getCurrentTarget()) {
-            actions++;
             successSound.play();
             endTrial();
         } else {
@@ -155,7 +155,6 @@ public class TreeFlow extends Application {
         currentDirectory = directory;
         files.setAll(directory.getChildren());
         path.set(currentPath());
-        //listView.getSelectionModel().clearSelection();
         actions++;
         clickSound.play();
     }
@@ -184,12 +183,6 @@ public class TreeFlow extends Application {
     }
 
     private void startTrial() {
-        trial.set(trial.get() + 1);
-        treeFlow.set(!treeFlow.get());
-        startTime = System.currentTimeMillis();
-        endTime = 0;
-        actions = 0;
-
         // generate file tree
         VirtualDirectory root = VirtualElementHelper.generateTree();
         currentDirectory = root;
@@ -197,6 +190,15 @@ public class TreeFlow extends Application {
         files.setAll(root.getChildren());
         target.set(VirtualElementHelper.getCurrentTarget().getName());
         path.set(currentPath());
+
+        trial.set(trial.get() + 1);
+        treeFlow.set(!treeFlow.get());
+        endTime = 0;
+        actions = 0;
+
+        Dialogs.showTrialDialog(treeFlow.get());
+
+        startTime = System.currentTimeMillis();
     }
 
     private void endTrial() {
@@ -283,7 +285,7 @@ public class TreeFlow extends Application {
         primaryStage.setTitle("TreeFlow");
         primaryStage.setScene(scene);
         primaryStage.show();
-        // Dialogs.showStartDialog();
+        Dialogs.showStartDialog();
         startTrial();
     }
 
