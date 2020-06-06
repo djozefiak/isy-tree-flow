@@ -31,8 +31,8 @@ public class Dialogs {
                 + "Bei beiden Methoden wird eine Datei durch einen Doppelklick geöffnet.\n\n"
                 + "Aufgabenbeschreibung:\n\n"
                 + "- Ziel ist es, eine Datei im Verzeichnisbaum zu finden. Dafür wird der aktuelle Pfad und der gesuchte Dateiname angezeigt.\n"
-                + "- Nun soll mit den beiden Methoden im Verzeichnisbaum nach der Datei gesucht werden und diese anschließend mit einem Doppelklick geöffnet werden.\n"
-                + "Wichtig: Die Ordnernamen und Dateinamen sind zufällig zugeordnet, das bedeutet, im Ordner \"Dokumente\" können auch Bilder enthalten sein.");
+                + "- Nun soll mit den beiden Methoden im Verzeichnisbaum nach der Datei gesucht werden und diese anschließend mit einem Doppelklick geöffnet werden.\n\n"
+                + "Wichtig: Die Ordnernamen und Dateinamen sind zufällig zugeordnet, das bedeutet, dass im Ordner \"Dokumente\" auch Bilder enthalten sein können.\n");
         alert.showAndWait();
     }
 
